@@ -193,11 +193,10 @@ void initClocks() {
   for (int i = 0; i < cabbageX.length; i++) {
     clockX[i] = SOIL_SIZE * floor(random(SOIL_COL_COUNT));
     clockY[i] = SOIL_SIZE * ( i * 4 + floor(random(4)));
-    //}while(cIsExist(clockX, cabbageX));
-    //cabbageX[i] = clockX[i];
-    //while(cIsExistY(clockY, cabbageY));
-    //cabbageY[i] = clockY[i];
-    //}
+    while (cabbageY[i] == clockY[i] && cabbageX[i] == clockX[i]) {
+      clockX[i] = SOIL_SIZE * floor(random(SOIL_COL_COUNT));
+      clockY[i] = SOIL_SIZE * ( i * 4 + floor(random(4)));
+    }
   }
 }
 // - Remember to reroll if the randomized position has a cabbage on the same soil!
@@ -306,11 +305,11 @@ void draw() {
       image(cabbage, cabbageX[i], cabbageY[i]);
       // Requirement #3: Use boolean isHit(...) to detect collision
       if (playerHealth < PLAYER_MAX_HEALTH
-  && isHit(playerX, playerY, 80, 80, cabbageX[i], cabbageY[i], 80, 80)){
+        && isHit(playerX, playerY, 80, 80, cabbageX[i], cabbageY[i], 80, 80)) {
 
-  playerHealth ++;
-  cabbageX[i] = cabbageY[i] = -1000;
-} 
+        playerHealth ++;
+        cabbageX[i] = cabbageY[i] = -1000;
+      }
     }
 
     // Requirement #1: Clocks
@@ -318,7 +317,7 @@ void draw() {
 
       image(clock, clockX[i], clockY[i]);
       if (isHit(playerX, playerY, 80, 80, clockX[i], clockY[i], 80, 80)) {
-       addTime(15);
+        addTime(15);
         clockX[i] = clockY[i] = -1000;// Requirement #2
       }
     }
@@ -536,7 +535,7 @@ void drawDepthUI() {
 }
 
 void drawTimerUI() {
-  String timeString = convertFramesToTimeString(gameTimer); 
+  String timeString = convertFramesToTimeString(gameTimer);
   // Requirement #4: Get the mm:ss string using String convertFramesToTimeString(int frames)
 
   textAlign(LEFT, BOTTOM);
@@ -552,16 +551,15 @@ void drawTimerUI() {
 }
 
 void addTime(float seconds) {
-   gameTimer +=round(seconds * 60);
+  gameTimer +=round(seconds * 60);
 }
 
 boolean isHit(float ax, float ay, float aw, float ah, float bx, float by, float bw, float bh) {
 
-  return  ax + aw > bx &&  
-        ax < bx + bw &&   
-        ay + ah > by &&   
-        ay < by + bh;
-
+  return  ax + aw > bx &&
+    ax < bx + bw &&
+    ay + ah > by &&
+    ay < by + bh;
 }
 
 String convertFramesToTimeString(int frames) {	// Requirement #4
@@ -571,22 +569,22 @@ String convertFramesToTimeString(int frames) {	// Requirement #4
   time += nf(floor(result/60), 2);
   time += ":";
   time += nf(floor(result%60), 2);
-  
+
   return time;
 }
 
 color getTimeTextColor(int frames) {				// Requirement #5
-  
+
   if (frames >= 7200) {
-  return #00ffff;
-  } else if (frames < 7200 && frames >= 3600) {
-   return #ffffff;
-  } else if (frames < 3600 && frames >= 1080) {
-   return #ffcc00;
-  } else if (frames < 1080 && frames >= 360) {
+    return #00ffff;
+  } else if (frames >= 3600) {
+    return #ffffff;
+  } else if (frames >= 1800) {
+    return #ffcc00;
+  } else if (frames >= 600) {
     return #ff6600;
   } else {
-   return #ff0000;
+    return #ff0000;
   }
 }
 
@@ -596,23 +594,29 @@ int getEnemyIndexByRow(int row) {				// Requirement #6
   // - If there's a soldier in that row, return that soldier's index in soldierX/soldierY
   // (for example, if soldierY[3] is in that row, return 3)
   // - Return -1 if there's no soldier in that row
-for (int i = 0; i < soldierX.length; i++) {
-  if(soldierY[i]>0){
-   soldierY[i] = row;
-  }  
-   return row;
-}return -1;
+  for (int i = 0; i < soldierX.length; i++) {
+    if (soldierY[i] == row * SOIL_SIZE) {
+      return i;
+    }
+  }
+  return -1;
 }
 
 
 void drawCaution() {								// Requirement #6
 
- 
-  for(int i= 0; i<6; i++) { // Draw a caution sign above the enemy under the screen using int getEnemyIndexByRow(int row)
-if(getEnemyIndexByRow(i)>0 && getEnemyIndexByRow(i)<=SOIL_ROW_COUNT){
-  image(caution, soldierX[i], soldierY[i] - 80);
-}
- }
+//getEnemyIndexByRow(playerRow+5);
+//  for (int i= 0; i<soldierX.length; i++) { // Draw a caution sign above the enemy under the screen using int getEnemyIndexByRow(int row)
+//    if (getEnemyIndexByRow(playerRow+5)>-1 ) {
+//      image(caution, soldierX[getEnemyIndexByRow(playerRow+5)], soldierY[getEnemyIndexByRow(playerRow+5)] - 80);
+//    }
+//  }
+if (getEnemyIndexByRow(playerRow+5)!=-1) {
+    image(caution, 
+      soldierX[getEnemyIndexByRow(playerRow+5)], 
+      soldierY[getEnemyIndexByRow(playerRow+5)]-SOIL_SIZE);  
+  }
+
 
   // HINT:
   // - Use playerRow to calculate the row below the screen
